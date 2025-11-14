@@ -1,0 +1,509 @@
+/* Estilos profesionales para comprobantes electrónicos */
+
+.facturas-list {
+  margin-top: 40px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+
+.facturas-list h2 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 28px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sin-facturas {
+  text-align: center;
+  padding: 60px;
+  background: white;
+  border-radius: 12px;
+  color: #7f8c8d;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.facturas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Tarjeta del comprobante */
+.factura-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+}
+
+.factura-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Diferenciación visual entre BOLETA y FACTURA */
+.comprobante-boleta {
+  border-left: 5px solid #3498db;
+}
+
+.comprobante-factura {
+  border-left: 5px solid #e74c3c;
+}
+
+/* Vista previa compacta */
+.factura-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.factura-preview:hover {
+  background: linear-gradient(135deg, #e8ecf1 0%, #b5c2d8 100%);
+}
+
+.preview-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.badge-comprobante {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.badge-comprobante.boleta {
+  background: #3498db;
+  color: white;
+}
+
+.badge-comprobante.factura {
+  background: #e74c3c;
+  color: white;
+}
+
+.numero-comprobante {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Courier New', monospace;
+}
+
+.preview-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.cliente-nombre {
+  font-size: 16px;
+  color: #34495e;
+  font-weight: 500;
+  max-width: 400px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comprobante-total {
+  font-size: 22px;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+.btn-expandir-comprobante {
+  background: #34495e;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-expandir-comprobante:hover {
+  background: #2c3e50;
+  transform: scale(1.1);
+}
+
+/* Comprobante completo expandido */
+.comprobante-completo {
+  padding: 40px;
+  background: white;
+  border-top: 3px solid #34495e;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Encabezado del comprobante */
+.comprobante-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 30px;
+}
+
+.empresa-info {
+  flex: 1;
+}
+
+.empresa-info h3 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.empresa-info p {
+  margin: 6px 0;
+  color: #34495e;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.comprobante-tipo-box {
+  border: 3px solid #34495e;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  min-width: 280px;
+  background: #f8f9fa;
+}
+
+.tipo-titulo {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tipo-titulo.boleta {
+  color: #3498db;
+}
+
+.tipo-titulo.factura {
+  color: #e74c3c;
+}
+
+.comprobante-serie {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin: 5px 0;
+  font-weight: 600;
+}
+
+.comprobante-numero {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 8px 0 0 0;
+  font-family: 'Courier New', monospace;
+}
+
+/* Separadores */
+.separador-comprobante {
+  border: none;
+  border-top: 2px solid #bdc3c7;
+  margin: 25px 0;
+}
+
+/* Datos del cliente */
+.cliente-datos {
+  background: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.cliente-datos h4 {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cliente-datos p {
+  margin: 8px 0;
+  color: #34495e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.cliente-datos strong {
+  color: #2c3e50;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 140px;
+}
+
+/* Productos */
+.productos-seccion {
+  margin: 25px 0;
+}
+
+.productos-seccion h4 {
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabla-comprobante {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.tabla-comprobante th {
+  background: #34495e;
+  color: white;
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.tabla-comprobante td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #ecf0f1;
+  color: #2c3e50;
+}
+
+.tabla-comprobante tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.tabla-comprobante .text-center {
+  text-align: center;
+}
+
+.tabla-comprobante .text-right {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+/* Totales */
+.totales-comprobante {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 30px;
+  gap: 30px;
+}
+
+.totales-izquierda {
+  flex: 1;
+  background: #ecf0f1;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.totales-izquierda p {
+  margin: 8px 0;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.totales-izquierda strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.totales-derecha {
+  min-width: 350px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #34495e;
+}
+
+.fila-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+  color: #34495e;
+  font-weight: 500;
+}
+
+.fila-total span:last-child {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.total-grande {
+  border-top: 3px solid #34495e;
+  margin-top: 15px;
+  padding-top: 15px !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #27ae60 !important;
+}
+
+.total-grande span:last-child {
+  font-size: 24px;
+  color: #27ae60;
+}
+
+/* Pie del comprobante */
+.comprobante-footer {
+  margin-top: 30px;
+  padding: 20px;
+  background: #ecf0f1;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.texto-legal {
+  font-size: 12px;
+  color: #7f8c8d;
+  line-height: 1.8;
+  margin-bottom: 15px;
+}
+
+.hash-comprobante {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #bdc3c7;
+}
+
+.hash-comprobante small {
+  font-family: 'Courier New', monospace;
+  color: #95a5a6;
+  font-size: 10px;
+  word-break: break-all;
+}
+
+/* Acciones */
+.acciones-comprobante {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-imprimir {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-imprimir:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+.btn-imprimir:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .comprobante-header {
+    flex-direction: column;
+  }
+
+  .comprobante-tipo-box {
+    width: 100%;
+  }
+
+  .totales-comprobante {
+    flex-direction: column;
+  }
+
+  .totales-derecha {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .comprobante-completo {
+    padding: 20px;
+  }
+
+  .factura-preview {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .preview-right {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .cliente-nombre {
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .tabla-comprobante {
+    font-size: 12px;
+  }
+
+  .tabla-comprobante th,
+  .tabla-comprobante td {
+    padding: 10px 8px;
+  }
+}
+
+/* Estilos de impresión */
+@media print {
+  .facturas-list h2,
+  .btn-expandir-comprobante,
+  .factura-preview,
+  .acciones-comprobante {
+    display: none !important;
+  }
+
+  .comprobante-completo {
+    padding: 0;
+    border: none;
+  }
+
+  .factura-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    page-break-after: always;
+  }
+}

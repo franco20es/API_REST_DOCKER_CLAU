@@ -1,0 +1,286 @@
+.ventas-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ventas-container h2 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.seccion-venta {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.seccion-venta h3 {
+  color: #34495e;
+  margin-bottom: 15px;
+  font-size: 20px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+.form-group-inline {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-group-inline input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.input-cantidad {
+  max-width: 100px !important;
+}
+
+.btn-buscar {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-buscar:hover {
+  background-color: #2980b9;
+}
+
+.btn-buscar:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.btn-agregar {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-agregar:hover {
+  background-color: #229954;
+}
+
+.tipo-cliente-selector {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tipo-cliente-selector label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.tipo-cliente-selector input[type="radio"] {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+}
+
+.cliente-seleccionado {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-left: 4px solid #27ae60;
+  border-radius: 5px;
+}
+
+.cliente-seleccionado p {
+  margin: 5px 0;
+  color: #2c3e50;
+}
+
+.tipo-cambio-info {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 5px;
+}
+
+.tipo-cambio-info p {
+  margin: 5px 0;
+  color: #856404;
+}
+
+.tipo-cambio-info em {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.tabla-productos-venta {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabla-productos-venta th,
+.tabla-productos-venta td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.tabla-productos-venta th {
+  background-color: #3498db;
+  color: white;
+  font-weight: 600;
+}
+
+.tabla-productos-venta tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.input-cantidad-tabla {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.btn-eliminar {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-eliminar:hover {
+  background-color: #c0392b;
+}
+
+.totales-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.totales {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.fila-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.fila-total.total-final {
+  border-top: 2px solid #2c3e50;
+  border-bottom: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #27ae60;
+  margin-top: 10px;
+  padding-top: 15px;
+}
+
+.metodo-pago {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.metodo-pago h4 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.opciones-pago,
+.opciones-moneda {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.opciones-pago label,
+.opciones-moneda label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.opciones-pago input[type="radio"],
+.opciones-moneda input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.btn-generar-factura {
+  width: 100%;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-generar-factura:hover {
+  background-color: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-generar-factura:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .totales-container {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group-inline {
+    flex-direction: column;
+  }
+
+  .input-cantidad {
+    max-width: 100% !important;
+  }
+}

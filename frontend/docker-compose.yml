@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  database:
+    image: postgres:15-alpine
+    container_name: facturacion-db
+    environment:
+      POSTGRES_DB: API_REST
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 'Jfrc11$$$$'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - facturacion-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Spring Boot
+  backend:
+    build:
+      context: ../demo
+      dockerfile: Dockerfile
+    container_name: facturacion-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/API_REST
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 'Jfrc11$$$$'
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - facturacion-network
+    restart: unless-stopped
+
+  # Frontend React + Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facturacion-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - facturacion-network
+    restart: unless-stopped
+
+networks:
+  facturacion-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
