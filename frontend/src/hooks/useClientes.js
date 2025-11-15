@@ -17,21 +17,28 @@ export const useClientes = () => {
     setError(null);
 
     try {
-      // API de RENIEC (usando PeruDevs)
-      const token = 'cGVydWRldnMucHJvZHVjdGlvbi5maXRjb2RlcnMuNjhmMTkzNTcyZGZhMTIyNjA3ZTgzZTk5';
-      const url = `https://api.perudevs.com/api/v1/dni/simple?document=${dni}&key=${token}`;
+      // API de RENIEC (DeColecta)
+      const token = 'sk_10991.mftCUraGWAg9GH57tcKSAQ6kHiMy2NOD';
+      const url = `https://api.decolecta.com/v1/reniec/dni?numero=${dni}`;
       
-      const response = await axios.get(url);
-      const data = response.data.resultado || response.data.data || response.data;
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Respuesta: { first_name, first_last_name, second_last_name, document_number, full_name }
+      const data = response.data;
       
       setLoading(false);
       
       return {
-        dni: data.numero || dni,
-        nombres: data.nombres,
-        apellidoPaterno: data.apellido_paterno || data.apellidoPaterno,
-        apellidoMaterno: data.apellido_materno || data.apellidoMaterno,
-        nombreCompleto: `${data.nombres} ${data.apellido_paterno || data.apellidoPaterno} ${data.apellido_materno || data.apellidoMaterno}`
+        dni: data.document_number || dni,
+        nombres: data.first_name,
+        apellidoPaterno: data.first_last_name,
+        apellidoMaterno: data.second_last_name,
+        nombreCompleto: data.full_name || `${data.first_name} ${data.first_last_name} ${data.second_last_name}`
       };
     } catch (err) {
       setLoading(false);
@@ -104,21 +111,28 @@ export const useClientes = () => {
     setError(null);
 
     try {
-      // API de SUNAT (usando PeruDevs)
-      const token = 'cGVydWRldnMucHJvZHVjdGlvbi5maXRjb2RlcnMuNjhmMTkzNTcyZGZhMTIyNjA3ZTgzZTk5';
-      const url = `https://api.perudevs.com/api/v1/ruc/simple?document=${ruc}&key=${token}`;
+      // API de SUNAT (DeColecta)
+      const token = 'sk_10991.mftCUraGWAg9GH57tcKSAQ6kHiMy2NOD';
+      const url = `https://api.decolecta.com/v1/sunat/ruc?numero=${ruc}`;
       
-      const response = await axios.get(url);
-      const data = response.data.resultado || response.data.data || response.data;
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Respuesta: { razon_social, numero_documento, estado, condicion, direccion, ... }
+      const data = response.data;
       
       setLoading(false);
       
       return {
-        ruc: data.ruc || ruc,
-        razonSocial: data.razon_social || data.razonSocial || data.nombre_o_razon_social,
-        direccion: data.direccion || data.direccion_completa,
-        estado: data.estado || data.estado_contribuyente,
-        condicion: data.condicion || data.condicion_domicilio
+        ruc: data.numero_documento || ruc,
+        razonSocial: data.razon_social,
+        direccion: data.direccion,
+        estado: data.estado,
+        condicion: data.condicion
       };
     } catch (err) {
       setLoading(false);
