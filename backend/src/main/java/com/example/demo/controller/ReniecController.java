@@ -25,18 +25,19 @@ public class ReniecController {
     public ResponseEntity<?> consultarDNI(@PathVariable String numero) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + API_TOKEN);
             headers.set("Content-Type", "application/json");
-            
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            
             String url = RENIEC_API_URL + "?numero=" + numero;
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            
             Map<String, Object> data = response.getBody();
-            
+            // Validar respuesta
+            if (data == null || data.get("document_number") == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "No se encontró información para el DNI");
+                return ResponseEntity.status(404).body(error);
+            }
             // Formatear respuesta
             Map<String, Object> result = new HashMap<>();
             result.put("dni", data.get("document_number"));
@@ -44,7 +45,6 @@ public class ReniecController {
             result.put("apellidoPaterno", data.get("first_last_name"));
             result.put("apellidoMaterno", data.get("second_last_name"));
             result.put("nombreCompleto", data.get("full_name"));
-            
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
