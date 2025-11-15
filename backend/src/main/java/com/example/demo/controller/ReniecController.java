@@ -16,7 +16,7 @@ public class ReniecController {
 
     private static final String RENIEC_API_URL = "https://api.decolecta.com/v1/reniec/dni";
     private static final String SUNAT_API_URL = "https://api.decolecta.com/v1/sunat/ruc";
-    private static final String API_TOKEN = "sk_10991.mftCUraGWAg9GH57tcKSAQ6kHiMy2NOD";
+    private static final String API_TOKEN = "sk_10991.StqhR57O89Ven46TNFgkzBd9WYOv6cu";
 
     /**
      * Consultar DNI en RENIEC
