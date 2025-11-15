@@ -20,7 +20,8 @@ public class CorsConfig {
         // Permite peticiones desde tu frontend React
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("http://localhost:5173"); // Si usas Vite
-        config.addAllowedOrigin("http://localhost");      // Docker frontend en puerto 80
+        config.addAllowedOrigin("http://localhost");  
+        config.addAllowedOrigin("http://34.28.54.252");     // Docker frontend en puerto 80
         
         // Permite todos los headers
         config.addAllowedHeader("*");
