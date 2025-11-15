@@ -1,0 +1,30 @@
+
+/* Prueba de actualización: fondo y botón */
+.login-container {
+	background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+	padding: 40px;
+	border-radius: 12px;
+	box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.login-title {
+	color: #fff;
+	font-size: 2rem;
+	margin-bottom: 24px;
+	text-align: center;
+}
+
+.login-btn {
+	background: #2a5298;
+	color: #fff;
+	border: none;
+	padding: 12px 32px;
+	border-radius: 8px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.login-btn:hover {
+	background: #1e3c72;
+}
+
