@@ -2,11 +2,16 @@ package com.example.demo.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -36,6 +41,9 @@ public class ReniecController {
             if (data == null || data.get("document_number") == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "No se encontró información para el DNI");
+                if (data != null && data.containsKey("error")) {
+                    error.put("mensaje", String.valueOf(data.get("error")));
+                }
                 return ResponseEntity.status(404).body(error);
             }
             // Formatear respuesta
@@ -50,6 +58,10 @@ public class ReniecController {
             Map<String, String> error = new HashMap<>();
             error.put("error", "No se pudo consultar el DNI");
             error.put("mensaje", e.getMessage());
+            // Si la excepción tiene causa, mostrar el mensaje real
+            if (e.getCause() != null) {
+                error.put("detalle", e.getCause().getMessage());
+            }
             return ResponseEntity.status(500).body(error);
         }
     }
