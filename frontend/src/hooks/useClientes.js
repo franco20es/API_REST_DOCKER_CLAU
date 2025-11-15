@@ -17,28 +17,22 @@ export const useClientes = () => {
     setError(null);
 
     try {
-      // API de RENIEC (DeColecta)
-      const token = 'sk_10991.mftCUraGWAg9GH57tcKSAQ6kHiMy2NOD';
-      const url = `https://api.decolecta.com/v1/reniec/dni?numero=${dni}`;
+      // Llamar al backend que consulta RENIEC (evita CORS)
+      const url = `/api/reniec/dni/${dni}`;
       
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.get(url);
       
-      // Respuesta: { first_name, first_last_name, second_last_name, document_number, full_name }
+      // Respuesta ya viene formateada del backend
       const data = response.data;
       
       setLoading(false);
       
       return {
-        dni: data.document_number || dni,
-        nombres: data.first_name,
-        apellidoPaterno: data.first_last_name,
-        apellidoMaterno: data.second_last_name,
-        nombreCompleto: data.full_name || `${data.first_name} ${data.first_last_name} ${data.second_last_name}`
+        dni: data.dni || dni,
+        nombres: data.nombres,
+        apellidoPaterno: data.apellidoPaterno,
+        apellidoMaterno: data.apellidoMaterno,
+        nombreCompleto: data.nombreCompleto
       };
     } catch (err) {
       setLoading(false);
@@ -111,25 +105,19 @@ export const useClientes = () => {
     setError(null);
 
     try {
-      // API de SUNAT (DeColecta)
-      const token = 'sk_10991.mftCUraGWAg9GH57tcKSAQ6kHiMy2NOD';
-      const url = `https://api.decolecta.com/v1/sunat/ruc?numero=${ruc}`;
+      // Llamar al backend que consulta SUNAT (evita CORS)
+      const url = `/api/reniec/ruc/${ruc}`;
       
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.get(url);
       
-      // Respuesta: { razon_social, numero_documento, estado, condicion, direccion, ... }
+      // Respuesta ya viene formateada del backend
       const data = response.data;
       
       setLoading(false);
       
       return {
-        ruc: data.numero_documento || ruc,
-        razonSocial: data.razon_social,
+        ruc: data.ruc || ruc,
+        razonSocial: data.razonSocial,
         direccion: data.direccion,
         estado: data.estado,
         condicion: data.condicion
