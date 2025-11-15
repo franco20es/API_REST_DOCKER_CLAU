@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useEmpresas } from "../hooks/useEmpresas"; // ✅ Importar el hook
+import { useEmpresas } from "../hooks/useEmpresas"; //  Importar el hook
 import "./ProductosForm.css"; // Usamos el mismo CSS que otros formularios
 
 const EmpresaForm = () => {
@@ -15,7 +15,7 @@ const EmpresaForm = () => {
   const [loadingRegistro, setLoadingRegistro] = useState(false);
   const [empresasRegistradas, setEmpresasRegistradas] = useState([]);
 
-  // ✅ Usar el hook de empresas
+  //  Usar el hook de empresas
   const { buscarEmpresaPorRUC, loading: loadingBusqueda, error: errorBusqueda } = useEmpresas();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const EmpresaForm = () => {
 
   const cargarEmpresas = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/empresas");
+      const response = await axios.get("/api/empresas");
       setEmpresasRegistradas(response.data);
     } catch (error) {
       console.error("Error al cargar empresas:", error);
@@ -81,9 +81,9 @@ const EmpresaForm = () => {
 
     try {
       setLoadingRegistro(true);
-      const response = await axios.post("http://localhost:8080/api/empresas", empresaData);
+      const response = await axios.post("/api/empresas", empresaData);
       
-      alert("✅ Empresa registrada exitosamente");
+      alert(" Empresa registrada exitosamente");
       limpiarFormulario();
       cargarEmpresas();
     } catch (error) {
@@ -114,7 +114,7 @@ const EmpresaForm = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:8080/api/empresas/${id}`);
+      await axios.delete(`/api/empresas/${id}`);
       alert("✅ Empresa eliminada");
       cargarEmpresas();
     } catch (error) {

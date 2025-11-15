@@ -28,7 +28,7 @@ function App() {
 
   const cargarProductosDesdeBackend = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/productos");
+      const response = await axios.get("/api/productos");
       setProductos(response.data);
       console.log(" Productos cargados desde el backend:", response.data);
     } catch (error) {

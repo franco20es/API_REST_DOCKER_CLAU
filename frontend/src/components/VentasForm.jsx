@@ -64,7 +64,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
 
       // Si NO es un DNI de 8 dígitos, buscar por NOMBRE en el backend
       // Hacer una petición al backend para buscar por nombre/apellido
-      const response = await axios.get(`http://localhost:8080/api/clientes`);
+      const response = await axios.get(`/api/clientes`);
       const todosLosClientes = response.data;
       
       // Buscar coincidencias por nombre, apellido paterno o apellido materno
@@ -108,7 +108,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
     try {
       // PRIMERO: Buscar en el backend local
       try {
-        const responseBackend = await axios.get(`http://localhost:8080/api/empresas/ruc/${ruc}`, {
+        const responseBackend = await axios.get(`/api/empresas/ruc/${ruc}`, {
           validateStatus: function (status) {
             // ✅ Considerar 404 como respuesta válida (no lanzar error)
             return status >= 200 && status < 300 || status === 404;
@@ -161,7 +161,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             condicion: empresaSUNAT.condicion || 'HABIDO'
           };
 
-          const responseRegistro = await axios.post('http://localhost:8080/api/empresas', empresaData);
+          const responseRegistro = await axios.post('/api/empresas', empresaData);
           
           // Usar la empresa recién registrada (con su id_empresa)
           setEmpresaSeleccionada({
@@ -183,7 +183,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
           // Si falla el registro (ej: ya existe), intentar buscar nuevamente en backend
           if (errorRegistro.response?.status === 409) {
             // La empresa ya existe, buscarla nuevamente
-            const responseBackend = await axios.get(`http://localhost:8080/api/empresas/ruc/${ruc}`);
+            const responseBackend = await axios.get(`/api/empresas/ruc/${ruc}`);
             if (responseBackend.data) {
               setEmpresaSeleccionada({
                 id_empresa: responseBackend.data.id_empresa,
