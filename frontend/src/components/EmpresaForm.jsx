@@ -33,12 +33,12 @@ const EmpresaForm = () => {
 
   const buscarEnSUNAT = async () => {
     if (!ruc || ruc.length !== 11) {
-      alert("❌ Ingrese un RUC válido de 11 dígitos");
+      alert(" Ingrese un RUC válido de 11 dígitos");
       return;
     }
 
     try {
-      // ✅ Usar el hook para buscar en SUNAT
+      //  Usar el hook para buscar en SUNAT
       const empresa = await buscarEmpresaPorRUC(ruc);
 
       if (empresa) {
@@ -50,13 +50,13 @@ const EmpresaForm = () => {
         setDistrito(empresa.distrito || "");
         setEstado(empresa.estado || "ACTIVO");
         setCondicion(empresa.condicion || "HABIDO");
-        alert("✅ Datos encontrados en SUNAT. Verifique y registre.");
+        alert(" Datos encontrados en SUNAT. Verifique y registre.");
       } else {
-        alert("⚠️ No se encontraron datos en SUNAT. Complete manualmente.");
+        alert(" No se encontraron datos en SUNAT. Complete manualmente.");
       }
     } catch (error) {
       // El error ya está manejado en el hook
-      alert(`⚠️ ${errorBusqueda || "Error al consultar SUNAT"}. Complete los datos manualmente.`);
+      alert(` ${errorBusqueda || "Error al consultar SUNAT"}. Complete los datos manualmente.`);
     }
   };
 
@@ -64,7 +64,7 @@ const EmpresaForm = () => {
     e.preventDefault();
 
     if (!ruc || !razonSocial) {
-      alert("❌ RUC y Razón Social son obligatorios");
+      alert(" RUC y Razón Social son obligatorios");
       return;
     }
 
@@ -88,9 +88,9 @@ const EmpresaForm = () => {
       cargarEmpresas();
     } catch (error) {
       if (error.response?.status === 409) {
-        alert("❌ Esta empresa ya está registrada");
+        alert(" Esta empresa ya está registrada");
       } else {
-        alert(`❌ Error al registrar: ${error.response?.data?.message || error.message}`);
+        alert(` Error al registrar: ${error.response?.data?.message || error.message}`);
       }
     } finally {
       setLoadingRegistro(false);
@@ -115,10 +115,10 @@ const EmpresaForm = () => {
 
     try {
       await axios.delete(`/api/empresas/${id}`);
-      alert("✅ Empresa eliminada");
+      alert(" Empresa eliminada");
       cargarEmpresas();
     } catch (error) {
-      alert("❌ Error al eliminar empresa");
+      alert(" Error al eliminar empresa");
     }
   };
 

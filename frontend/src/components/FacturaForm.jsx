@@ -8,13 +8,9 @@ const FacturaForm = ({ agregarFactura }) => {
   const [moneda, setMoneda] = useState("PEN");
   const [factura, setFactura] = useState(null);
   
-  const URL="https://api.perudevs.com/api/v1/ruc?document=NUMERO_RUC&key=TU_TOKEN";
-  const TOKEN="cGVydWRldnMucHJvZHVjdGlvbi5maXRjb2RlcnMuNjhmMTkzNTcyZGZhMTIyNjA3ZTgzZTk5";
   const buscarEmpresa = async () => {
     try {
-      const res = await axios.get(
-        `${URL}${ruc}&token=${TOKEN}`
-      );
+      const res = await axios.get(`/api/reniec/ruc/${ruc}`);
       setEmpresa(res.data);
     } catch (err) {
       alert("Empresa no encontrada");

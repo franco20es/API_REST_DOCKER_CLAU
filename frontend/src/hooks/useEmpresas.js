@@ -17,8 +17,8 @@ export const useEmpresas = () => {
     setError(null);
 
     try {
-      const token = 'cGVydWRldnMucHJvZHVjdGlvbi5maXRjb2RlcnMuNjhmMTkzNTcyZGZhMTIyNjA3ZTgzZTk5';
-      const url = `https://api.perudevs.com/api/v1/ruc?document=${ruc}&key=${token}`;
+      // Llamar al backend que consulta SUNAT (evita CORS)
+      const url = `/api/reniec/ruc/${ruc}`;
       
       const response = await axios.get(url, {
         timeout: 10000
@@ -28,33 +28,13 @@ export const useEmpresas = () => {
       
       setLoading(false);
       
-      if (data && data.estado && data.mensaje === "Encontrado" && data.resultado) {
-        const resultado = data.resultado;
-        
-        return {
-          ruc: resultado.oficio || ruc,
-          razonSocial: resultado.razon_social || resultado.nombre_comercial || 'No disponible',
-          direccion: resultado.direccion || '-',
-          estado: resultado.estado || 'ACTIVO',
-          condicion: resultado.condicion || 'HABIDO',
-          tipo: resultado.tipo || '-',
-          nombreComercial: resultado.nombre_comercial || '-',
-          fechaInscripcion: resultado.fecha_inscripcion || '-',
-          sistemaEmision: resultado.sistema_emision || '-',
-          actividadExterior: resultado.actividad_exterior || '-',
-          sistemaContabilidad: resultado.sistema_contabilidad || '-',
-          fechaEmisionElectronica: resultado.fecha_emision_electronica || '-',
-          fechaPle: resultado.fecha_ple || '-',
-          actividadesEconomicas: resultado.actividades_economicas || [],
-          departamento: '-',
-          provincia: '-',
-          distrito: '-',
-          ubigeo: '-'
-        };
-      } else {
-        setError('No se encontraron datos de la empresa en SUNAT');
-        return null;
-      }
+      return {
+        ruc: data.ruc || ruc,
+        razonSocial: data.razonSocial || 'No disponible',
+        direccion: data.direccion || '-',
+        estado: data.estado || 'ACTIVO',
+        condicion: data.condicion || 'HABIDO'
+      };
     } catch (err) {
       setLoading(false);
       
