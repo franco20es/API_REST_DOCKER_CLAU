@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 @RequestMapping("/api/reniec")
 
-// CORS corregido: permite tu dominio real en Google Cloud
+
 @CrossOrigin(origins = {
     "http://34.28.54.252",
     "http://34.28.54.252:80",
