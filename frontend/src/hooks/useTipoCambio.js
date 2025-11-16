@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// **CLAVE DECOLECTA (REQUERIDA)**
+const DECOLECTA_API_KEY = "sk_10991.SttqhR57G89Ven46TNFgkzBd9WYOx6cu"; 
+
 export const useTipoCambio = () => {
-  const [tipoCambio, setTipoCambio] = useState(3.70); // Valor inicial
+  const [tipoCambio, setTipoCambio] = useState(3.70); // Fallback inicial
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
@@ -12,14 +15,26 @@ export const useTipoCambio = () => {
     setError(null);
 
     try {
-      const response = await axios.get("https://open.er-api.com/v6/latest/USD");
+      // 1. URL de la API de Decolecta (SBS Promedio)
+      const DECOLECTA_URL = "https://api.decolecta.com/v1/tipo-cambio/sbs/average?currency=USD";
 
-      // Validación de la API
-      if (!response.data?.rates?.PEN) {
-        throw new Error("Respuesta inválida de API");
+      const response = await axios.get(DECOLECTA_URL, {
+        // 2. Incluye el Header de Autorización
+        headers: {
+          'Authorization': `Bearer ${DECOLECTA_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // 3. Validación y Extracción del precio de venta ("sell_price")
+      // Usaremos el precio de Venta como la tasa de cambio
+      const sellPrice = response.data?.data?.sell_price;
+      
+      if (!response.data?.success || !sellPrice) {
+        throw new Error("Respuesta inválida o incompleta de la API de Decolecta/SBS");
       }
 
-      const tasa = Number(response.data.rates.PEN);
+      const tasa = parseFloat(sellPrice); 
 
       setTipoCambio(tasa);
       setUltimaActualizacion(new Date());
@@ -27,11 +42,8 @@ export const useTipoCambio = () => {
 
       return tasa;
     } catch (err) {
-      console.warn("⚠️ Error al obtener tipo de cambio:", err.message);
-
-      setError("No se pudo obtener el tipo de cambio actual");
-
-      // Mantiene valor actual (fallback)
+      console.warn(" Error al obtener tipo de cambio (Decolecta/SBS):", err.message);
+      setError("No se pudo obtener el tipo de cambio actual de la SBS");
       setLoading(false);
       return tipoCambio;
     }
@@ -49,13 +61,10 @@ export const useTipoCambio = () => {
     return (parseFloat(montoSoles) / tipoCambio).toFixed(2);
   };
 
-  // Se ejecuta una vez al cargar el componente
+  // Se ejecuta una vez y luego cada 30 minutos
   useEffect(() => {
     obtenerTipoCambio();
-
-    // Actualizar cada 30 minutos
     const interval = setInterval(obtenerTipoCambio, 30 * 60 * 1000);
-
     return () => clearInterval(interval);
   }, []);
 
