@@ -21,7 +21,13 @@ import com.example.demo.service.ProductoService;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+
+// CORS para permitir acceso desde tu servidor real en Google Cloud
+@CrossOrigin(origins = {
+    "http://34.28.54.252",     // tu servidor frontend
+    "http://localhost:3000",   // para pruebas locales
+    "http://localhost:5173"
+})
 public class ProductosController {
 
     @Autowired
@@ -38,17 +44,21 @@ public class ProductosController {
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
         Optional<Producto> producto = productoService.findById(id);
+
+        // Si existe, devolverlo; si no, NOT FOUND
         return producto.map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+                       .orElse(ResponseEntity.notFound().build());
     }
 
     // Buscar productos por nombre
     @GetMapping("/buscar/nombre/{nombre}")
     public ResponseEntity<List<Producto>> buscarProductosPorNombre(@PathVariable String nombre) {
         List<Producto> productos = productoService.findByNombre(nombre);
+
         if (productos.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
         return ResponseEntity.ok(productos);
     }
 
@@ -56,23 +66,34 @@ public class ProductosController {
     @PostMapping
     public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
         try {
+            // Guardar producto
             Producto productoGuardado = productoService.save(producto);
             return ResponseEntity.status(HttpStatus.CREATED).body(productoGuardado);
+
         } catch (Exception e) {
+            // Error SQL o validación
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // Actualizar producto
+    // Actualizar producto existente
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
+    public ResponseEntity<Producto> actualizarProducto(
+            @PathVariable Long id,
+            @RequestBody Producto producto
+    ) {
+
         Optional<Producto> productoExistente = productoService.findById(id);
+
         if (productoExistente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
+        // Mantener el ID original
         producto.setId_producto(id);
+
         Producto productoActualizado = productoService.save(producto);
+
         return ResponseEntity.ok(productoActualizado);
     }
 
@@ -80,11 +101,13 @@ public class ProductosController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         Optional<Producto> producto = productoService.findById(id);
+
         if (producto.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         productoService.deleteById(id);
+
         return ResponseEntity.noContent().build();
     }
 }

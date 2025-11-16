@@ -1,58 +1,61 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL || ''}/api/empresas`;
+// URL REAL DEL BACKEND (producción / docker)
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://34.28.54.252:8080";
+
+// ENDPOINT EMPRESAS
+const BACKEND_URL = `${BASE_URL}/api/empresas`;
 
 export const useEmpresas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Buscar empresa por RUC (SUNAT)
+  // ---------------------------
+  // Buscar empresa por RUC (SUNAT -> backend)
+  // ---------------------------
   const buscarEmpresaPorRUC = async (ruc) => {
     if (!ruc || ruc.length !== 11) {
-      throw new Error('RUC debe tener 11 dígitos');
+      throw new Error("RUC debe tener 11 dígitos");
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      // Llamar al backend que consulta SUNAT (evita CORS)
-      const url = `/api/reniec/ruc/${ruc}`;
-      
-      const response = await axios.get(url, {
-        timeout: 10000
-      });
-      
+      //  Siempre llamar a backend completo (NO /api/... directo)
+      const url = `${BASE_URL}/api/reniec/ruc/${ruc}`;
+
+      const response = await axios.get(url, { timeout: 10000 });
       const data = response.data;
-      
+
       setLoading(false);
-      
+
       return {
         ruc: data.ruc || ruc,
-        razonSocial: data.razonSocial || 'No disponible',
-        direccion: data.direccion || '-',
-        estado: data.estado || 'ACTIVO',
-        condicion: data.condicion || 'HABIDO'
+        razonSocial: data.razonSocial || "No disponible",
+        direccion: data.direccion || "-",
+        estado: data.estado || "ACTIVO",
+        condicion: data.condicion || "HABIDO"
       };
     } catch (err) {
       setLoading(false);
-      
-      if (err.code === 'ECONNABORTED') {
-        setError('Tiempo de espera agotado. Verifique su conexión a internet');
+
+      if (err.code === "ECONNABORTED") {
+        setError("Tiempo de espera agotado.");
       } else if (err.response) {
-        setError(`Error del servidor: ${err.response.status} - ${err.response.data?.mensaje || 'Error desconocido'}`);
-      } else if (err.request) {
-        setError('No se pudo conectar con el servidor. Verifique su conexión a internet');
+        setError(`Error del servidor: ${err.response.status}`);
       } else {
-        setError(`Error: ${err.message}`);
+        setError("No se pudo conectar con el backend");
       }
-      
+
       return null;
     }
   };
 
-  // ← GUARDAR empresa en el backend
+  // ---------------------------
+  // Guardar empresa en el backend
+  // ---------------------------
   const guardarEmpresaEnBackend = async (empresaData) => {
     setLoading(true);
     setError(null);
@@ -64,30 +67,31 @@ export const useEmpresas = () => {
         direccion: empresaData.direccion,
         estado: empresaData.estado,
         condicion: empresaData.condicion,
-        departamento: empresaData.departamento || '-',
-        provincia: empresaData.provincia || '-',
-        distrito: empresaData.distrito || '-',
-        ubigeo: empresaData.ubigeo || '-'
+        departamento: empresaData.departamento || "-",
+        provincia: empresaData.provincia || "-",
+        distrito: empresaData.distrito || "-",
+        ubigeo: empresaData.ubigeo || "-"
       });
-      
+
       setLoading(false);
       return response.data;
+
     } catch (err) {
       setLoading(false);
-      
+
       if (err.response?.status === 409) {
-        // Empresa ya existe - retornar la empresa existente
-        setError('Esta empresa ya está registrada');
+        setError("Esta empresa ya está registrada");
         return err.response.data;
       }
-      
-      setError('Error al guardar empresa en la base de datos');
-      console.error('Error guardando empresa:', err);
+
+      setError("Error al guardar la empresa");
       throw err;
     }
   };
 
-  // ← BUSCAR empresa en backend por RUC
+  // ---------------------------
+  // Buscar empresa en PostgreSQL
+  // ---------------------------
   const buscarEmpresaEnBackend = async (ruc) => {
     setLoading(true);
     setError(null);
@@ -95,14 +99,16 @@ export const useEmpresas = () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/buscar/ruc/${ruc}`);
       setLoading(false);
-      return response.data; // Retorna array de empresas
+      return response.data;
     } catch (err) {
       setLoading(false);
-      return null; // No es error si no se encuentra
+      return null;
     }
   };
 
-  // ← OBTENER todas las empresas registradas
+  // ---------------------------
+  // Obtener todas las empresas
+  // ---------------------------
   const obtenerEmpresasRegistradas = async () => {
     setLoading(true);
     setError(null);
@@ -113,13 +119,14 @@ export const useEmpresas = () => {
       return response.data;
     } catch (err) {
       setLoading(false);
-      setError('Error al obtener empresas');
-      console.error('Error obteniendo empresas:', err);
+      setError("Error al obtener empresas");
       throw err;
     }
   };
 
-  // ← ELIMINAR empresa
+  // ---------------------------
+  // Eliminar empresa
+  // ---------------------------
   const eliminarEmpresa = async (id) => {
     setLoading(true);
     setError(null);
@@ -130,8 +137,7 @@ export const useEmpresas = () => {
       return true;
     } catch (err) {
       setLoading(false);
-      setError('Error al eliminar empresa');
-      console.error('Error eliminando empresa:', err);
+      setError("Error al eliminar empresa");
       throw err;
     }
   };
@@ -139,10 +145,10 @@ export const useEmpresas = () => {
   return {
     loading,
     error,
-    buscarEmpresaPorRUC,              // Consulta SUNAT
-    guardarEmpresaEnBackend,          // Guarda en PostgreSQL
-    buscarEmpresaEnBackend,           // Busca en PostgreSQL
-    obtenerEmpresasRegistradas,       // Lista todas de PostgreSQL
-    eliminarEmpresa                   // Elimina de PostgreSQL
+    buscarEmpresaPorRUC,
+    guardarEmpresaEnBackend,
+    buscarEmpresaEnBackend,
+    obtenerEmpresasRegistradas,
+    eliminarEmpresa
   };
 };

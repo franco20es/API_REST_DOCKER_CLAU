@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useClientes } from "../hooks/useClientes";
 import { useFacturas } from "../hooks/useFacturas";
-import { useEmpresas } from "../hooks/useEmpresas"; // ✅ Importar hook de empresas
+import { useEmpresas } from "../hooks/useEmpresas"; 
 import axios from "axios";
 import "./VentasForm.css";
 
@@ -13,7 +13,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
   
-  // ✅ Hooks
+  // Hooks
   const { buscarClientePorDNI, buscarClienteEnBackend, loading: loadingCliente } = useClientes();
   const { buscarEmpresaPorRUC, loading: loadingEmpresa, error: errorEmpresa } = useEmpresas();
   const { guardarFactura, generarNumeroComprobante, loading: loadingFactura, error: errorFactura } = useFacturas();
@@ -57,7 +57,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
 
         // Si no está en backend, buscar en RENIEC
         const clienteReniec = await buscarClientePorDNI(busqueda);
-        alert("⚠️ Cliente encontrado en RENIEC pero no está registrado. Por favor regístrelo primero en la sección 'Clientes'");
+        alert(" Cliente encontrado en RENIEC pero no está registrado. Por favor regístrelo primero en la sección 'Clientes'");
         setClienteSeleccionado(null);
         return;
       }
@@ -110,7 +110,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
       try {
         const responseBackend = await axios.get(`/api/empresas/ruc/${ruc}`, {
           validateStatus: function (status) {
-            // ✅ Considerar 404 como respuesta válida (no lanzar error)
+            //  Considerar 404 como respuesta válida (no lanzar error)
             return status >= 200 && status < 300 || status === 404;
           }
         });
@@ -130,7 +130,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             distrito: empresa.distrito || '-',
             ubigeo: empresa.ubigeo || '-'
           });
-          alert("✅ Empresa encontrada en el sistema");
+          alert(" Empresa encontrada en el sistema");
           return;
         }
         
@@ -148,7 +148,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
       const empresaSUNAT = await buscarEmpresaPorRUC(ruc);
 
       if (empresaSUNAT) {
-        // ✅ REGISTRAR AUTOMÁTICAMENTE en el backend
+        // REGISTRAR AUTOMÁTICAMENTE en el backend
         try {
           const empresaData = {
             ruc: empresaSUNAT.ruc,
@@ -177,8 +177,8 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             ubigeo: empresaSUNAT.ubigeo || '-'
           });
           
-          alert("✅ Empresa encontrada en SUNAT y registrada automáticamente");
-          return; // ✅ IMPORTANTE: Salir aquí si todo fue exitoso
+          alert(" Empresa encontrada en SUNAT y registrada automáticamente");
+          return; //  IMPORTANTE: Salir aquí si todo fue exitoso
         } catch (errorRegistro) {
           // Si falla el registro (ej: ya existe), intentar buscar nuevamente en backend
           if (errorRegistro.response?.status === 409) {
@@ -197,8 +197,8 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                 distrito: responseBackend.data.distrito || '-',
                 ubigeo: responseBackend.data.ubigeo || '-'
               });
-              alert("✅ Empresa encontrada en el sistema");
-              return; // ✅ IMPORTANTE: Salir aquí si todo fue exitoso
+              alert(" Empresa encontrada en el sistema");
+              return; //  IMPORTANTE: Salir aquí si todo fue exitoso
             }
           } else {
             // Error diferente al 409, propagar
@@ -206,13 +206,13 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
           }
         }
       } else {
-        alert("❌ No se encontraron datos de la empresa en SUNAT");
+        alert(" No se encontraron datos de la empresa en SUNAT");
         setEmpresaSeleccionada(null);
       }
     } catch (err) {
       // Solo manejar errores reales, no los casos de éxito
       console.error("Error al buscar empresa:", err);
-      alert(`❌ Error: ${err.message || "No se pudo consultar la empresa"}`);
+      alert(` Error: ${err.message || "No se pudo consultar la empresa"}`);
       setEmpresaSeleccionada(null);
     }
   };
@@ -386,7 +386,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
       // Guardar en el backend
       const facturaGuardada = await guardarFactura(facturaData);
     
-      alert(`✅ ${tipoComprobante} ${numero} registrada exitosamente en la base de datos!`);
+      alert(` ${tipoComprobante} ${numero} registrada exitosamente en la base de datos!`);
       
       // Si hay función del padre (para estado local del frontend)
       if (agregarFactura) {
@@ -411,7 +411,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
       // Limpiar formulario
       limpiarFormulario();
     } catch (err) {
-      alert(`❌ Error al guardar la venta: ${errorFactura || err.response?.data?.message || err.message}`);
+      alert(` Error al guardar la venta: ${errorFactura || err.response?.data?.message || err.message}`);
     }
   };
 
@@ -431,7 +431,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
 
   return (
     <div className="ventas-container">
-      <h2>📝 Registrar Venta</h2>
+      <h2> Registrar Venta</h2>
 
       {/* Mostrar error si existe */}
       {errorFactura && (
@@ -442,7 +442,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
           borderRadius: '5px', 
           marginBottom: '15px'
         }}>
-          ⚠️ {errorFactura}
+           {errorFactura}
         </div>
       )}
 
@@ -480,7 +480,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                 setDni("");
               }}
             />
-            🏢 Empresa (RUC)
+             Empresa (RUC)
           </label>
         </div>
 
@@ -555,7 +555,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             className="input-cantidad"
           />
           <button onClick={agregarProducto} className="btn-agregar">
-            ➕ Agregar
+             Agregar
           </button>
         </div>
       </div>
@@ -563,7 +563,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
       {/* Sección 3: Tabla de Productos */}
       {productosSeleccionados.length > 0 && (
         <div className="seccion-venta">
-          <h3>🛒 Productos Seleccionados</h3>
+          <h3> Productos Seleccionados</h3>
           <table className="tabla-productos-venta">
             <thead>
               <tr>
@@ -597,7 +597,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                       onClick={() => eliminarProducto(producto.id_producto)} 
                       className="btn-eliminar"
                     >
-                      🗑️
+                      
                     </button>
                   </td>
                 </tr>
@@ -627,7 +627,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             </div>
 
             <div className="metodo-pago">
-              <h4>💳 Método de Pago</h4>
+              <h4> Método de Pago</h4>
               <div className="opciones-pago">
                 <label>
                   <input
@@ -636,7 +636,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                     checked={metodoPago === "efectivo"}
                     onChange={(e) => setMetodoPago(e.target.value)}
                   />
-                  💵 Efectivo
+                   Efectivo
                 </label>
                 <label>
                   <input
@@ -645,7 +645,7 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                     checked={metodoPago === "tarjeta"}
                     onChange={(e) => setMetodoPago(e.target.value)}
                   />
-                  💳 Tarjeta
+                  Tarjeta
                 </label>
               </div>
 
@@ -672,13 +672,13 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
                       obtenerTipoCambio();
                     }}
                   />
-                  💵 Dólares (USD)
+                   Dólares (USD)
                 </label>
               </div>
 
               {moneda === "USD" && tipoCambio && (
                 <div className="tipo-cambio-info">
-                  <p><strong>⚠️ Tipo de cambio:</strong> $1 USD = S/ {tipoCambio.toFixed(2)} PEN</p>
+                  <p><strong> Tipo de cambio:</strong> $1 USD = S/ {tipoCambio.toFixed(2)} PEN</p>
                   <p><em>Los totales se mostrarán en Soles (requerimiento SUNAT)</em></p>
                 </div>
               )}
@@ -693,8 +693,8 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
             {loadingFactura 
               ? "⏳ Guardando..." 
               : (clienteSeleccionado 
-                  ? "🧾 Generar Boleta" 
-                  : "📄 Generar Factura")}
+                  ? " Generar Boleta" 
+                  : " Generar Factura")}
           </button>
         </div>
       )}

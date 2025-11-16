@@ -20,26 +20,27 @@ import com.example.demo.service.ClientesService;
 
 @RestController
 @RequestMapping("/api/clientes")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://34.28.54.252",
+        "http://34.28.54.252:80",
+        "http://34.28.54.252:3000",
+        "http://34.28.54.252:5173"
+})
 public class ClientesController {
     
     @Autowired
     private ClientesService clientesService;
 
-    /**
-     * Obtener todos los clientes
-     * GET http://localhost:8080/api/clientes
-     */
+    // Obtener todos los clientes
     @GetMapping
     public ResponseEntity<List<Clientes>> getAllClientes() {
         List<Clientes> clientes = clientesService.findAll();
         return ResponseEntity.ok(clientes);
     }
 
-    /**
-     * Buscar cliente por ID
-     * GET http://localhost:8080/api/clientes/1
-     */
+    // Buscar cliente por ID
     @GetMapping("/{id}")
     public ResponseEntity<Clientes> getClienteById(@PathVariable Long id) {
         return clientesService.findById(id)
@@ -47,31 +48,21 @@ public class ClientesController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Buscar clientes por nombre completo
-     * GET http://localhost:8080/api/clientes/buscar/nombre/JUAN PEREZ
-     */
+    // Buscar cliente por nombre completo
     @GetMapping("/buscar/nombre/{nombreCompleto}")
     public ResponseEntity<List<Clientes>> getClientesByNombre(@PathVariable String nombreCompleto) {
         List<Clientes> clientes = clientesService.findByNombreCompleto(nombreCompleto);
         return ResponseEntity.ok(clientes);
     }
 
-    /**
-     * Buscar clientes por DNI
-     * GET http://localhost:8080/api/clientes/buscar/dni/12345678
-     */
+    // Buscar cliente por DNI
     @GetMapping("/buscar/dni/{dni}")
     public ResponseEntity<List<Clientes>> getClientesByDni(@PathVariable String dni) {
         List<Clientes> clientes = clientesService.findByDni(dni);
         return ResponseEntity.ok(clientes);
     }
 
-    /**
-     * Crear un nuevo cliente (desde RENIEC)
-     * POST http://localhost:8080/api/clientes
-     * Body: { "dni": "12345678", "nombre_completo": "JUAN PEREZ", ... }
-     */
+    // Crear cliente
     @PostMapping
     public ResponseEntity<Clientes> createCliente(@RequestBody Clientes cliente) {
         try {
@@ -82,10 +73,7 @@ public class ClientesController {
         }
     }
 
-    /**
-     * Actualizar cliente existente
-     * PUT http://localhost:8080/api/clientes/1
-     */
+    // Actualizar cliente
     @PutMapping("/{id}")
     public ResponseEntity<Clientes> updateCliente(@PathVariable Long id, @RequestBody Clientes cliente) {
         return clientesService.findById(id)
@@ -97,10 +85,7 @@ public class ClientesController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Eliminar cliente
-     * DELETE http://localhost:8080/api/clientes/1
-     */
+    // Eliminar cliente
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
         return clientesService.findById(id)

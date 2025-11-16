@@ -30,7 +30,14 @@ import com.example.demo.service.ProductoService;
 
 @RestController
 @RequestMapping("/api/facturas")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://34.28.54.252",
+        "http://34.28.54.252:80",
+        "http://34.28.54.252:3000",
+        "http://34.28.54.252:5173"
+})
 public class FacturasController {
 
     @Autowired
@@ -66,7 +73,6 @@ public class FacturasController {
     @PostMapping
     public ResponseEntity<?> crearFactura(@RequestBody Map<String, Object> facturaData) {
         try {
-            // Crear la factura
             Factura factura = new Factura();
             factura.setTipo_comprobante(facturaData.get("tipo_comprobante").toString());
             factura.setNumero(facturaData.get("numero").toString());
@@ -77,46 +83,43 @@ public class FacturasController {
             factura.setMetodo_pago(facturaData.get("metodo_pago").toString());
             factura.setMoneda(facturaData.get("moneda").toString());
 
-            // Determinar si es BOLETA (cliente) o FACTURA (empresa)
+            // Validar BOLETA o FACTURA
             String tipoComprobante = facturaData.get("tipo_comprobante").toString();
-            
+
             if ("BOLETA".equals(tipoComprobante)) {
-                // Es una BOLETA - requiere cliente
                 if (!facturaData.containsKey("id_cliente")) {
                     return ResponseEntity.badRequest().body("BOLETA requiere id_cliente");
                 }
-                
                 Long idCliente = Long.valueOf(facturaData.get("id_cliente").toString());
                 Optional<Clientes> clienteOpt = clientesService.findById(idCliente);
-                
+
                 if (clienteOpt.isEmpty()) {
                     return ResponseEntity.badRequest().body("Cliente no encontrado");
                 }
-                
+
                 factura.setCliente(clienteOpt.get());
                 factura.setEmpresa(null);
-                
+
             } else if ("FACTURA".equals(tipoComprobante)) {
-                // Es una FACTURA - requiere empresa
                 if (!facturaData.containsKey("id_empresa")) {
                     return ResponseEntity.badRequest().body("FACTURA requiere id_empresa");
                 }
-                
+
                 Long idEmpresa = Long.valueOf(facturaData.get("id_empresa").toString());
                 Optional<Empresa> empresaOpt = empresaService.findById(idEmpresa);
-                
+
                 if (empresaOpt.isEmpty()) {
                     return ResponseEntity.badRequest().body("Empresa no encontrada");
                 }
-                
+
                 factura.setEmpresa(empresaOpt.get());
                 factura.setCliente(null);
-                
+
             } else {
                 return ResponseEntity.badRequest().body("Tipo de comprobante inválido. Use BOLETA o FACTURA");
             }
 
-            // Procesar los detalles (productos)
+            // Procesar los detalles
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> detallesData = (List<Map<String, Object>>) facturaData.get("detalles");
             List<DetalleFactura> detalles = new ArrayList<>();
@@ -124,11 +127,11 @@ public class FacturasController {
             for (Map<String, Object> detalleData : detallesData) {
                 Long idProducto = Long.valueOf(detalleData.get("id_producto").toString());
                 Optional<Producto> productoOpt = productoService.findById(idProducto);
-                
+
                 if (productoOpt.isEmpty()) {
                     return ResponseEntity.badRequest().body("Producto con ID " + idProducto + " no encontrado");
                 }
-                
+
                 Producto producto = productoOpt.get();
 
                 DetalleFactura detalle = new DetalleFactura();
@@ -137,13 +140,13 @@ public class FacturasController {
                 detalle.setCantidad(Integer.valueOf(detalleData.get("cantidad").toString()));
                 detalle.setPrecio_unitario(Double.valueOf(detalleData.get("precio_unitario").toString()));
                 detalle.setSubtotal(Double.valueOf(detalleData.get("subtotal").toString()));
-                
+
                 detalles.add(detalle);
 
-                // Actualizar stock del producto
+                // Actualizar stock
                 int nuevoStock = producto.getCantidad() - detalle.getCantidad();
                 if (nuevoStock < 0) {
-                    return ResponseEntity.badRequest().body("Stock insuficiente para el producto: " + producto.getNombre());
+                    return ResponseEntity.badRequest().body("Stock insuficiente para: " + producto.getNombre());
                 }
                 producto.setCantidad(nuevoStock);
                 productoService.save(producto);
@@ -151,10 +154,9 @@ public class FacturasController {
 
             factura.setDetalles(detalles);
 
-            // Guardar la factura con sus detalles
             Factura facturaGuardada = facturasService.save(factura);
-            
             return ResponseEntity.status(HttpStatus.CREATED).body(facturaGuardada);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -169,13 +171,12 @@ public class FacturasController {
         if (clienteOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
-        // Aquí necesitarías un método en el servicio para filtrar por cliente
+
         List<Factura> todasFacturas = facturasService.findAll();
         List<Factura> facturasCliente = todasFacturas.stream()
-                .filter(f -> f.getCliente().getId_cliente().equals(idCliente))
+                .filter(f -> f.getCliente() != null && f.getCliente().getId_cliente().equals(idCliente))
                 .toList();
-        
+
         return ResponseEntity.ok(facturasCliente);
     }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useClientes } from "../hooks/useClientes";
 import { useUsuarios } from "../hooks/useUsuarios";
 import "./ProductosForm.css";
+
 const UsuarioForm = () => {
   const [dni, setDni] = useState("");
   const [cliente, setCliente] = useState(null);
@@ -40,25 +41,22 @@ const UsuarioForm = () => {
     }
 
     try {
-      // Verificar si ya existe como usuario
       const usuarioExistente = await buscarUsuarioEnBackend(dni);
       if (usuarioExistente && usuarioExistente.length > 0) {
         alert("Este DNI ya está registrado como usuario");
         return;
       }
 
-      // Buscar en RENIEC
       const clienteData = await buscarClientePorDNI(dni);
       setCliente(clienteData);
-      
-      // Autocompletar usuario con nombres
+
       setCredenciales({
         ...credenciales,
         usuario: clienteData.nombres?.toLowerCase().replace(/\s+/g, '') || ''
       });
     } catch (err) {
       console.error("Error al consultar el DNI:", err);
-      alert("No se encontró el cliente en RENIEC");
+      alert("No se encontró el cliente");
       setCliente(null);
     }
   };
@@ -78,10 +76,8 @@ const UsuarioForm = () => {
       await guardarUsuarioEnBackend(cliente, credenciales);
       alert("Usuario registrado exitosamente");
       
-      // Recargar la lista
       await cargarUsuariosBackend();
-      
-      // Limpiar formulario
+
       setDni("");
       setCliente(null);
       setCredenciales({ usuario: "", password: "", rol: "USER" });
@@ -93,7 +89,7 @@ const UsuarioForm = () => {
 
   return (
     <div className="form-card">
-      <h2>👤 Registrar Usuario</h2>
+      <h2>Registrar Usuario</h2>
 
       {/* Buscar por DNI */}
       <div className="form-group">
@@ -110,14 +106,14 @@ const UsuarioForm = () => {
           disabled={loadingReniec || !dni || dni.length !== 8}
           className="btn-primary"
         >
-          {loadingReniec ? "Buscando..." : "🔍 Buscar"}
+          {loadingReniec ? "Buscando..." : "Buscar"}
         </button>
       </div>
 
       {/* Datos del cliente encontrado */}
       {cliente && (
         <div className="cliente-info">
-          <h3>✅ Cliente Encontrado</h3>
+          <h3>Cliente Encontrado</h3>
           <table className="tabla-cliente">
             <thead>
               <tr>
@@ -141,7 +137,7 @@ const UsuarioForm = () => {
 
           <hr style={{ margin: '20px 0', border: 'none', borderTop: '2px solid #ddd' }} />
 
-          <h3>🔐 Credenciales de Usuario</h3>
+          <h3>Credenciales de Usuario</h3>
           <div className="form-group">
             <label>Usuario:</label>
             <input
@@ -178,15 +174,15 @@ const UsuarioForm = () => {
             className="btn-registrar"
             disabled={loadingUsuario}
           >
-            {loadingUsuario ? "Guardando..." : "✓ Registrar Usuario"}
+            {loadingUsuario ? "Guardando..." : "Registrar Usuario"}
           </button>
         </div>
       )}
 
-      {/* Tabla de usuarios registrados */}
+      {/* Tabla de usuarios */}
       {usuariosBackend.length > 0 && (
         <div className="clientes-registrados">
-          <h3>📋 Usuarios Registrados ({usuariosBackend.length})</h3>
+          <h3>Usuarios Registrados ({usuariosBackend.length})</h3>
           <table className="tabla-clientes-registrados">
             <thead>
               <tr>

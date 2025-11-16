@@ -3,18 +3,18 @@ import "./Sidebar.css";
 
 const Sidebar = ({ seccionActiva, cambiarSeccion, cerrarSesion }) => {
   const menuItems = [
-    { id: "inicio", nombre: "Inicio", icono: "🏠" },
-    { id: "clientes", nombre: "Clientes", icono: "👥" },
-    { id: "empresas", nombre: "Empresas", icono: "🏢" },       // ✅ NUEVO
-    { id: "usuarios", nombre: "Usuarios", icono: "👤" },
-    { id: "productos", nombre: "Productos", icono: "📦" },
-    { id: "ventas", nombre: "Ventas", icono: "🛒" },
+    { id: "inicio", nombre: "Inicio" },
+    { id: "clientes", nombre: "Clientes" },
+    { id: "empresas", nombre: "Empresas" }, 
+    { id: "usuarios", nombre: "Usuarios" },
+    { id: "productos", nombre: "Productos" },
+    { id: "ventas", nombre: "Ventas" },
   ];
 
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h2>💼 Sistema Facturación</h2>
+        <h2>Sistema Facturación</h2>
       </div>
       
       <nav className="sidebar-nav">
@@ -25,7 +25,6 @@ const Sidebar = ({ seccionActiva, cambiarSeccion, cerrarSesion }) => {
               className={`menu-item ${seccionActiva === item.id ? "activo" : ""}`}
               onClick={() => cambiarSeccion(item.id)}
             >
-              <span className="icono">{item.icono}</span>
               <span className="texto">{item.nombre}</span>
             </li>
           ))}
@@ -34,7 +33,7 @@ const Sidebar = ({ seccionActiva, cambiarSeccion, cerrarSesion }) => {
 
       <div className="sidebar-footer">
         <button className="btn-cerrar-sesion" onClick={cerrarSesion}>
-          🚪 Cerrar Sesión
+          Cerrar Sesión
         </button>
       </div>
     </aside>

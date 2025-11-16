@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL || ''}/api/usuarios`;
+const BASE_URL = process.env.REACT_APP_BACKEND_URL?.replace(/\/$/, '') || "";
+const BACKEND_URL = `${BASE_URL}/api/usuarios`;
 
 export const useUsuarios = () => {
   const [loading, setLoading] = useState(false);
@@ -21,14 +22,14 @@ export const useUsuarios = () => {
         password: credenciales.password,
         rol: credenciales.rol || 'USER'
       });
-      
-      setLoading(false);
+
       return response.data;
+
     } catch (err) {
-      setLoading(false);
-      setError('Error al guardar usuario en la base de datos');
-      console.error('Error guardando usuario:', err);
+      setError('Error al guardar usuario');
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,12 +39,13 @@ export const useUsuarios = () => {
 
     try {
       const response = await axios.get(BACKEND_URL);
-      setLoading(false);
       return response.data;
+
     } catch (err) {
-      setLoading(false);
       setError('Error al obtener usuarios');
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,11 +55,12 @@ export const useUsuarios = () => {
 
     try {
       const response = await axios.get(`${BACKEND_URL}/buscar/dni/${dni}`);
-      setLoading(false);
       return response.data;
-    } catch (err) {
-      setLoading(false);
+
+    } catch {
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,12 +73,14 @@ export const useUsuarios = () => {
         usuario,
         password
       });
-      setLoading(false);
+
       return response.data;
+
     } catch (err) {
-      setLoading(false);
       setError('Credenciales incorrectas');
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 

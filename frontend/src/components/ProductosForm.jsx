@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useProductos } from "../hooks/useProductos"; // ← Importar el hook
+import { useProductos } from "../hooks/useProductos";
 import "./ProductosForm.css";
 
 const ProductosForm = ({ agregarProducto, recargarProductos }) => {
@@ -7,12 +7,11 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
   const [precio, setPrecio] = useState("");
   const [cantidad, setCantidad] = useState("");
 
-  // ← Usar el hook
   const { guardarProducto, loading, error } = useProductos();
 
-  const handleSubmit = async (e) => { // ← async
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!nombre || !precio || !cantidad) {
       alert("Todos los campos son obligatorios");
       return;
@@ -35,80 +34,77 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
     };
 
     try {
-      // ← Guardar en el backend (Spring Boot)
       const productoGuardado = await guardarProducto(nuevoProducto);
-      
-      alert(`✅ Producto "${nombre}" agregado exitosamente a la base de datos`);
-      
-      // ← Recargar lista de productos desde el backend
+
+      alert("Producto agregado exitosamente");
+
       if (recargarProductos) {
         await recargarProductos();
       }
-      
-      // Si hay función del padre (para estado local)
+
       if (agregarProducto) {
         agregarProducto(productoGuardado);
       }
 
-      // Limpiar formulario
       setNombre("");
       setPrecio("");
       setCantidad("");
     } catch (err) {
       console.error("Error al guardar producto:", err);
-      alert("❌ Error al guardar el producto en la base de datos");
+      alert("Error al guardar el producto en la base de datos");
     }
   };
 
   return (
     <div className="productos-form-container">
-      <h2 className="form-titulo">📦 Agregar Producto</h2>
-      
-      {/* ← Mostrar error si existe */}
+      <h2 className="form-titulo">Agregar Producto</h2>
+
       {error && (
-        <div className="error-message" style={{
-          background: '#fee', 
-          color: '#c00', 
-          padding: '10px', 
-          borderRadius: '5px', 
-          marginBottom: '15px'
-        }}>
-          ⚠️ {error}
+        <div
+          className="error-message"
+          style={{
+            background: "#fee",
+            color: "#c00",
+            padding: "10px",
+            borderRadius: "5px",
+            marginBottom: "15px"
+          }}
+        >
+          {error}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="form-productos">
         <div className="form-grid">
           <div className="form-group">
             <label htmlFor="nombre">
-              <span className="label-icon">🏷️</span>
               Nombre del Producto
             </label>
-            <input 
+
+            <input
               id="nombre"
-              type="text" 
+              type="text"
               placeholder="Ej: Paracetamol, Laptop, etc."
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="form-input"
               maxLength={100}
-              disabled={loading} // ← Deshabilitar mientras carga
+              disabled={loading}
             />
+
             <small className="input-hint">
               {nombre.length}/100 caracteres
             </small>
           </div>
 
           <div className="form-group">
-            <label htmlFor="precio">
-              <span className="label-icon">💰</span>
-              Precio Unitario (S/)
-            </label>
+            <label htmlFor="precio">Precio Unitario (S/)</label>
+
             <div className="input-with-prefix">
               <span className="input-prefix">S/</span>
-              <input 
+              <input
                 id="precio"
-                type="number" 
+                type="number"
                 placeholder="0.00"
                 value={precio}
                 onChange={(e) => setPrecio(e.target.value)}
@@ -118,30 +114,32 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
                 disabled={loading}
               />
             </div>
+
             {precio && (
-              <small className="input-hint precio-preview">
+              <small className="input-hint">
                 Precio: S/ {parseFloat(precio).toFixed(2)}
               </small>
             )}
           </div>
 
           <div className="form-group">
-            <label htmlFor="cantidad">
-              <span className="label-icon">📊</span>
-              Cantidad en Stock
-            </label>
+            <label htmlFor="cantidad">Cantidad en Stock</label>
+
             <div className="cantidad-controls">
-              <button 
+              <button
                 type="button"
                 className="btn-cantidad"
-                onClick={() => setCantidad(Math.max(0, parseInt(cantidad || 0) - 1))}
+                onClick={() =>
+                  setCantidad(Math.max(0, parseInt(cantidad || 0) - 1))
+                }
                 disabled={loading}
               >
-                −
+                -
               </button>
-              <input 
+
+              <input
                 id="cantidad"
-                type="number" 
+                type="number"
                 placeholder="0"
                 value={cantidad}
                 onChange={(e) => setCantidad(e.target.value)}
@@ -149,7 +147,8 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
                 min="1"
                 disabled={loading}
               />
-              <button 
+
+              <button
                 type="button"
                 className="btn-cantidad"
                 onClick={() => setCantidad(parseInt(cantidad || 0) + 1)}
@@ -158,6 +157,7 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
                 +
               </button>
             </div>
+
             {cantidad && (
               <small className="input-hint">
                 {parseInt(cantidad)} unidades
@@ -169,25 +169,30 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
         {nombre && precio && cantidad && (
           <div className="producto-preview">
             <div className="preview-header">
-              <span className="preview-icon">👁️</span>
-              <strong>Vista Previa del Producto</strong>
+              Vista Previa del Producto
             </div>
+
             <div className="preview-content">
               <div className="preview-item">
                 <span className="preview-label">Producto:</span>
                 <span className="preview-value">{nombre}</span>
               </div>
+
               <div className="preview-item">
                 <span className="preview-label">Precio Unitario:</span>
-                <span className="preview-value precio">S/ {parseFloat(precio).toFixed(2)}</span>
+                <span className="preview-value">
+                  S/ {parseFloat(precio).toFixed(2)}
+                </span>
               </div>
+
               <div className="preview-item">
                 <span className="preview-label">Cantidad:</span>
                 <span className="preview-value">{cantidad} unidades</span>
               </div>
+
               <div className="preview-item total">
                 <span className="preview-label">Valor Total:</span>
-                <span className="preview-value valor-total">
+                <span className="preview-value">
                   S/ {(parseFloat(precio) * parseInt(cantidad)).toFixed(2)}
                 </span>
               </div>
@@ -196,8 +201,7 @@ const ProductosForm = ({ agregarProducto, recargarProductos }) => {
         )}
 
         <button type="submit" className="btn-agregar-producto" disabled={loading}>
-          <span className="btn-icon">➕</span>
-          {loading ? "Guardando..." : "Agregar Producto al Inventario"}
+          Agregar Producto al Inventario
         </button>
       </form>
     </div>

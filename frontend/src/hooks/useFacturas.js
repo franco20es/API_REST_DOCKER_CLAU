@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL || ''}/api/facturas`;
+const API = process.env.REACT_APP_BACKEND_URL || "";
+const BACKEND_URL = `${API}/api/facturas`;
 
 export const useFacturas = () => {
   const [loading, setLoading] = useState(false);
@@ -19,29 +20,36 @@ export const useFacturas = () => {
     } catch (err) {
       setLoading(false);
       setError('Error al obtener facturas');
-      console.error('Error obteniendo facturas:', err);
       throw err;
     }
   };
 
-  // Guardar factura/boleta en el backend
+  // Guardar factura o boleta
   const guardarFactura = async (facturaData) => {
     setLoading(true);
     setError(null);
 
+    // Validación productos
+    if (!facturaData.productos || facturaData.productos.length === 0) {
+      setError("Debe agregar al menos un producto");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Estructura de datos para el backend
       const facturaBackend = {
-        tipo_comprobante: facturaData.tipoComprobante, // "BOLETA" o "FACTURA"
-        numero: facturaData.numero, // "B001-00001" o "F001-00001"
+        tipo_comprobante: facturaData.tipoComprobante,
+        numero: facturaData.numero,
         subtotal: facturaData.subtotal,
         igv: facturaData.igv,
         total: facturaData.total,
-        metodo_pago: facturaData.metodoPago, // "EFECTIVO", "TARJETA", "YAPE"
-        moneda: facturaData.moneda, // "PEN" o "USD"
-        tipo_cambio: facturaData.tipo_cambio, // Tipo de cambio para USD
-        id_cliente: facturaData.id_cliente, // ID del cliente (para BOLETA)
-        id_empresa: facturaData.id_empresa, // ID de la empresa (para FACTURA)
+        metodo_pago: facturaData.metodoPago,
+        moneda: facturaData.moneda,
+        tipo_cambio: facturaData.tipoCambio || 1,
+
+        id_cliente: facturaData.tipoComprobante === "BOLETA" ? facturaData.id_cliente : null,
+        id_empresa: facturaData.tipoComprobante === "FACTURA" ? facturaData.id_empresa : null,
+
         detalles: facturaData.productos.map(producto => ({
           id_producto: producto.id_producto,
           cantidad: producto.cantidadVendida || producto.cantidad,
@@ -54,9 +62,10 @@ export const useFacturas = () => {
       
       setLoading(false);
       return response.data;
+
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data || 'Error al guardar factura en la base de datos');
+      setError(err.response?.data || 'Error al guardar factura');
       throw err;
     }
   };
@@ -73,7 +82,6 @@ export const useFacturas = () => {
     } catch (err) {
       setLoading(false);
       setError('Factura no encontrada');
-      console.error('Error buscando factura:', err);
       return null;
     }
   };
@@ -90,7 +98,6 @@ export const useFacturas = () => {
     } catch (err) {
       setLoading(false);
       setError('No se encontraron facturas para este cliente');
-      console.error('Error buscando facturas por cliente:', err);
       return [];
     }
   };
@@ -107,16 +114,15 @@ export const useFacturas = () => {
     } catch (err) {
       setLoading(false);
       setError('Error al eliminar factura');
-      console.error('Error eliminando factura:', err);
       throw err;
     }
   };
 
-  // Generar número de comprobante automático
+  // Generar número automático
   const generarNumeroComprobante = (tipo) => {
     const serie = tipo === "BOLETA" ? "B001" : "F001";
-    const timestamp = Date.now();
-    return `${serie}-${timestamp}`;
+    const ts = Date.now();
+    return `${serie}-${ts}`;
   };
 
   return {

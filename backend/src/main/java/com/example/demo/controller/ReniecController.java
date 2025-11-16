@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,127 +12,176 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/reniec")
-@CrossOrigin(origins = {"http://localhost", "http://localhost:3000", "http://localhost:5173", "http://34.28.54.252"})
+
+// CORS corregido: permite tu dominio real en Google Cloud
+@CrossOrigin(origins = {
+    "http://34.28.54.252",
+    "http://34.28.54.252:80",
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5173"
+})
 public class ReniecController {
 
+    // URLs fijas de DECOLECTA
     private static final String RENIEC_API_URL = "https://api.decolecta.com/v1/reniec/dni";
     private static final String SUNAT_API_URL = "https://api.decolecta.com/v1/sunat/ruc";
 
-    // Read API key from environment variable DECOLECTA_API_KEY or from application properties (decolecta.api.key)
+    // Token configurado desde application.properties
     @Value("${decolecta.api.key:}")
     private String decolectaApiKey;
 
     /**
-     * Consultar DNI en RENIEC
+     * Obtiene la API KEY desde:
+     * 1. application.properties
+     * 2. variable de entorno en la máquina virtual
      */
+    private String obtenerApiKey() {
+        String envKey = System.getenv("DECOLECTA_API_KEY");
+        if (decolectaApiKey != null && !decolectaApiKey.isBlank()) return decolectaApiKey;
+        if (envKey != null && !envKey.isBlank()) return envKey;
+        return null; 
+    }
+
+    // ==============================
+    // CONSULTA DNI
+    // ==============================
     @GetMapping("/dni/{numero}")
     public ResponseEntity<?> consultarDNI(@PathVariable String numero) {
-        // determine API key from property or environment variable
-        String apiKey = (decolectaApiKey != null && !decolectaApiKey.isBlank()) ? decolectaApiKey : System.getenv("DECOLECTA_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Missing API key for DeColecta");
-            error.put("mensaje", "Set DECOLECTA_API_KEY env var or decolecta.api.key property");
-            return ResponseEntity.status(500).body(error);
+
+        if (numero.length() != 8) {
+            return ResponseEntity.badRequest().body(Map.of("error", "DNI inválido"));
         }
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        String url = RENIEC_API_URL + "?numero=" + numero;
+        String apiKey = obtenerApiKey();
+        if (apiKey == null) {
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Falta API KEY",
+                "mensaje", "Configura DECOLECTA_API_KEY en entorno o properties"
+            ));
+        }
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            RestTemplate rest = new RestTemplate();
+
+            HttpHeaders h = new HttpHeaders();
+            h.set("Authorization", "Bearer " + apiKey);  // Token de acceso
+            h.set("Content-Type", "application/json");
+
+            String url = RENIEC_API_URL + "?numero=" + numero;
+
+            ResponseEntity<Map<String, Object>> response = rest.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(h),
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+
             Map<String, Object> data = response.getBody();
 
-            // Validar respuesta
+            // Validación si no existe DNI
             if (data == null || data.get("document_number") == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "No se encontró información para el DNI");
-                if (data != null && data.containsKey("error")) {
-                    error.put("mensaje", String.valueOf(data.get("error")));
-                }
-                return ResponseEntity.status(404).body(error);
+                return ResponseEntity.status(404).body(Map.of("error", "No se encontró información para el DNI"));
             }
 
-            // Formatear respuesta
-            Map<String, Object> result = new HashMap<>();
-            result.put("dni", data.get("document_number"));
-            result.put("nombres", data.get("first_name"));
-            result.put("apellidoPaterno", data.get("first_last_name"));
-            result.put("apellidoMaterno", data.get("second_last_name"));
-            result.put("nombreCompleto", data.get("full_name"));
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(Map.of(
+                "dni", data.get("document_number"),
+                "nombres", data.get("first_name"),
+                "apellidoPaterno", data.get("first_last_name"),
+                "apellidoMaterno", data.get("second_last_name"),
+                "nombreCompleto", data.get("full_name")
+            ));
 
         } catch (HttpClientErrorException ex) {
-            // Cuando la API externa devuelve 4xx (ej. 401 Apikey/Limit)
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Error desde proveedor externo: " + ex.getStatusCode().toString());
-            String body = ex.getResponseBodyAsString();
-            error.put("mensaje", body != null ? body : ex.getMessage());
-            return ResponseEntity.status(ex.getStatusCode().value()).body(error);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "No se pudo consultar el DNI");
-            error.put("mensaje", e.getMessage());
-            if (e.getCause() != null) {
-                error.put("detalle", e.getCause().getMessage());
-            }
-            return ResponseEntity.status(500).body(error);
+            return ResponseEntity.status(ex.getStatusCode()).body(Map.of(
+                "error", "Error del proveedor externo",
+                "mensaje", ex.getResponseBodyAsString()
+            ));
+
+        } catch (HttpServerErrorException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(Map.of(
+                "error", "Error en el servidor externo",
+                "mensaje", ex.getResponseBodyAsString()
+            ));
+
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "No se pudo consultar DNI",
+                "mensaje", ex.getMessage()
+            ));
         }
     }
 
-    /**
-     * Consultar RUC en SUNAT
-     */
+    // ==============================
+    // CONSULTA RUC
+    // ==============================
     @GetMapping("/ruc/{numero}")
     public ResponseEntity<?> consultarRUC(@PathVariable String numero) {
-        // determine API key
-        String apiKey = (decolectaApiKey != null && !decolectaApiKey.isBlank()) ? decolectaApiKey : System.getenv("DECOLECTA_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Missing API key for DeColecta");
-            error.put("mensaje", "Set DECOLECTA_API_KEY env var or decolecta.api.key property");
-            return ResponseEntity.status(500).body(error);
+
+        if (numero.length() != 11) {
+            return ResponseEntity.badRequest().body(Map.of("error", "RUC inválido"));
         }
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
-        headers.set("Content-Type", "application/json");
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        String apiKey = obtenerApiKey();
+        if (apiKey == null) {
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Falta API KEY",
+                "mensaje", "Configura DECOLECTA_API_KEY en entorno o properties"
+            ));
+        }
 
-        String url = SUNAT_API_URL + "?numero=" + numero;
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            RestTemplate rest = new RestTemplate();
+
+            HttpHeaders h = new HttpHeaders();
+            h.set("Authorization", "Bearer " + apiKey);
+            h.set("Content-Type", "application/json");
+
+            String url = SUNAT_API_URL + "?numero=" + numero;
+
+            ResponseEntity<Map<String, Object>> response = rest.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(h),
+                new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {}
+            );
+
             Map<String, Object> data = response.getBody();
 
-            // Formatear respuesta
-            Map<String, Object> result = new HashMap<>();
-            result.put("ruc", data.get("numero_documento"));
-            result.put("razonSocial", data.get("razon_social"));
-            result.put("direccion", data.get("direccion"));
-            result.put("estado", data.get("estado"));
-            result.put("condicion", data.get("condicion"));
+            if (data == null || data.get("numero_documento") == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "No se encontró información para el RUC"));
+            }
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(Map.of(
+                "ruc", data.get("numero_documento"),
+                "razonSocial", data.get("razon_social"),
+                "direccion", data.get("direccion"),
+                "estado", data.get("estado"),
+                "condicion", data.get("condicion")
+            ));
+
         } catch (HttpClientErrorException ex) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Error desde proveedor externo: " + ex.getStatusCode().toString());
-            String body = ex.getResponseBodyAsString();
-            error.put("mensaje", body != null ? body : ex.getMessage());
-            return ResponseEntity.status(ex.getStatusCode().value()).body(error);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "No se pudo consultar el RUC");
-            error.put("mensaje", e.getMessage());
-            return ResponseEntity.status(500).body(error);
+            return ResponseEntity.status(ex.getStatusCode()).body(Map.of(
+                "error", "Error del proveedor externo",
+                "mensaje", ex.getResponseBodyAsString()
+            ));
+
+        } catch (HttpServerErrorException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(Map.of(
+                "error", "Error del servidor externo",
+                "mensaje", ex.getResponseBodyAsString()
+            ));
+
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "No se pudo consultar RUC",
+                "mensaje", ex.getMessage()
+            ));
         }
     }
 }

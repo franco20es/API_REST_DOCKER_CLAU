@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL || ''}/api/productos`;
+const API = process.env.REACT_APP_BACKEND_URL || "";
+const BACKEND_URL = `${API}/api/productos`;
 
 export const useProductos = () => {
   const [loading, setLoading] = useState(false);
@@ -29,17 +30,30 @@ export const useProductos = () => {
     setLoading(true);
     setError(null);
 
+    // Validación básica
+    if (!productoData.nombre || !productoData.precio || !productoData.cantidad) {
+      setError("Todos los campos son obligatorios");
+      setLoading(false);
+      return null;
+    }
+
     try {
       const response = await axios.post(BACKEND_URL, {
-        nombre: productoData.nombre,
-        precio: productoData.precio,
-        cantidad: productoData.cantidad
+        nombre: productoData.nombre.trim(),
+        precio: Number(productoData.precio),
+        cantidad: Number(productoData.cantidad)
       });
       
       setLoading(false);
       return response.data;
     } catch (err) {
       setLoading(false);
+
+      if (err.response?.status === 409) {
+        setError("El producto ya está registrado");
+        return null;
+      }
+
       setError('Error al guardar producto en la base de datos');
       console.error('Error guardando producto:', err);
       throw err;
@@ -58,7 +72,6 @@ export const useProductos = () => {
     } catch (err) {
       setLoading(false);
       setError('Producto no encontrado');
-      console.error('Error buscando producto:', err);
       return null;
     }
   };
@@ -71,11 +84,10 @@ export const useProductos = () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/buscar/nombre/${nombre}`);
       setLoading(false);
-      return response.data;
+      return response.data || [];
     } catch (err) {
       setLoading(false);
       setError('No se encontraron productos con ese nombre');
-      console.error('Error buscando productos:', err);
       return [];
     }
   };
@@ -87,9 +99,9 @@ export const useProductos = () => {
 
     try {
       const response = await axios.put(`${BACKEND_URL}/${id}`, {
-        nombre: productoData.nombre,
-        precio: productoData.precio,
-        cantidad: productoData.cantidad
+        nombre: productoData.nombre.trim(),
+        precio: Number(productoData.precio),
+        cantidad: Number(productoData.cantidad)
       });
       
       setLoading(false);
@@ -97,7 +109,6 @@ export const useProductos = () => {
     } catch (err) {
       setLoading(false);
       setError('Error al actualizar producto');
-      console.error('Error actualizando producto:', err);
       throw err;
     }
   };
@@ -114,7 +125,6 @@ export const useProductos = () => {
     } catch (err) {
       setLoading(false);
       setError('Error al eliminar producto');
-      console.error('Error eliminando producto:', err);
       throw err;
     }
   };

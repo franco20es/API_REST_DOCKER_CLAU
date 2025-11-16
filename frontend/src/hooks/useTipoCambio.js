@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export const useTipoCambio = () => {
-  const [tipoCambio, setTipoCambio] = useState(3.70); // Valor por defecto
+  const [tipoCambio, setTipoCambio] = useState(3.70); // Valor inicial
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
@@ -12,39 +12,50 @@ export const useTipoCambio = () => {
     setError(null);
 
     try {
-      // Usando API gratuita de tipo de cambio
-      const response = await axios.get('https://api.exchangerate-api.com/v4/latest/USD');
-      
-      const tasaPEN = response.data.rates.PEN;
-      
-      setTipoCambio(tasaPEN);
+      const response = await axios.get("https://open.er-api.com/v6/latest/USD");
+
+      // Validación de la API
+      if (!response.data?.rates?.PEN) {
+        throw new Error("Respuesta inválida de API");
+      }
+
+      const tasa = Number(response.data.rates.PEN);
+
+      setTipoCambio(tasa);
       setUltimaActualizacion(new Date());
       setLoading(false);
-      
-      return tasaPEN;
+
+      return tasa;
     } catch (err) {
-      console.error('Error al obtener tipo de cambio:', err);
-      setError('No se pudo obtener el tipo de cambio');
+      console.warn("⚠️ Error al obtener tipo de cambio:", err.message);
+
+      setError("No se pudo obtener el tipo de cambio actual");
+
+      // Mantiene valor actual (fallback)
       setLoading(false);
-      return tipoCambio; // Retorna el valor actual si hay error
+      return tipoCambio;
     }
   };
 
+  // Convertir USD → PEN
   const convertirUSDtoSoles = (montoUSD) => {
+    if (!montoUSD) return "0.00";
     return (parseFloat(montoUSD) * tipoCambio).toFixed(2);
   };
 
+  // Convertir PEN → USD
   const convertirSolesToUSD = (montoSoles) => {
+    if (!montoSoles) return "0.00";
     return (parseFloat(montoSoles) / tipoCambio).toFixed(2);
   };
 
-  // Obtener tipo de cambio al montar el componente
+  // Se ejecuta una vez al cargar el componente
   useEffect(() => {
     obtenerTipoCambio();
-    
+
     // Actualizar cada 30 minutos
     const interval = setInterval(obtenerTipoCambio, 30 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -55,6 +66,6 @@ export const useTipoCambio = () => {
     ultimaActualizacion,
     obtenerTipoCambio,
     convertirUSDtoSoles,
-    convertirSolesToUSD
+    convertirSolesToUSD,
   };
 };

@@ -21,7 +21,14 @@ import com.example.demo.service.EmpresaService;
 
 @RestController
 @RequestMapping("/api/empresas")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://34.28.54.252",
+        "http://34.28.54.252:80",
+        "http://34.28.54.252:3000",
+        "http://34.28.54.252:5173"
+})
 public class EmpresaController {
 
     @Autowired
@@ -39,7 +46,7 @@ public class EmpresaController {
     public ResponseEntity<Empresa> obtenerEmpresaPorId(@PathVariable Long id) {
         Optional<Empresa> empresa = empresaService.findById(id);
         return empresa.map(ResponseEntity::ok)
-                     .orElse(ResponseEntity.notFound().build());
+                      .orElse(ResponseEntity.notFound().build());
     }
 
     // Buscar empresas por RUC
@@ -66,20 +73,19 @@ public class EmpresaController {
     @PostMapping
     public ResponseEntity<Empresa> crearEmpresa(@RequestBody Empresa empresa) {
         try {
-            // Validar RUC
             if (empresa.getRuc() == null || empresa.getRuc().length() != 11) {
                 return ResponseEntity.badRequest().build();
             }
-            
-            // Verificar si ya existe
+
             List<Empresa> empresasExistentes = empresaService.findByRuc(empresa.getRuc());
             if (!empresasExistentes.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(empresasExistentes.get(0)); // Retorna la empresa existente
+                        .body(empresasExistentes.get(0));
             }
-            
+
             Empresa empresaGuardada = empresaService.save(empresa);
             return ResponseEntity.status(HttpStatus.CREATED).body(empresaGuardada);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -92,7 +98,7 @@ public class EmpresaController {
         if (empresaExistente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         empresa.setId_empresa(id);
         Empresa empresaActualizada = empresaService.save(empresa);
         return ResponseEntity.ok(empresaActualizada);
@@ -105,7 +111,7 @@ public class EmpresaController {
         if (empresa.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         empresaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

@@ -4,7 +4,7 @@ import React, { createContext, useReducer, useEffect } from 'react';
 const initialState = {
   facturas: [],
   clientes: [],
-  tipoCambio: 3.70, // valor por defecto
+  tipoCambio: 3.70, 
   loading: false,
   error: null
 };
@@ -21,7 +21,7 @@ export const ACTIONS = {
   SET_ERROR: 'SET_ERROR'
 };
 
-// Reducer para manejar el estado
+// Reducer principal
 const facturaReducer = (state, action) => {
   switch (action.type) {
     case ACTIONS.ADD_FACTURA:
@@ -29,99 +29,99 @@ const facturaReducer = (state, action) => {
         ...state,
         facturas: [...state.facturas, { ...action.payload, id: Date.now() }]
       };
-    
+
     case ACTIONS.UPDATE_FACTURA:
       return {
         ...state,
-        facturas: state.facturas.map(f => 
+        facturas: state.facturas.map((f) =>
           f.id === action.payload.id ? action.payload : f
         )
       };
-    
+
     case ACTIONS.DELETE_FACTURA:
       return {
         ...state,
-        facturas: state.facturas.filter(f => f.id !== action.payload)
+        facturas: state.facturas.filter((f) => f.id !== action.payload)
       };
-    
+
     case ACTIONS.SET_FACTURAS:
       return {
         ...state,
         facturas: action.payload
       };
-    
+
     case ACTIONS.ADD_CLIENTE:
       return {
         ...state,
         clientes: [...state.clientes, action.payload]
       };
-    
+
     case ACTIONS.SET_TIPO_CAMBIO:
       return {
         ...state,
         tipoCambio: action.payload
       };
-    
+
     case ACTIONS.SET_LOADING:
       return {
         ...state,
         loading: action.payload
       };
-    
+
     case ACTIONS.SET_ERROR:
       return {
         ...state,
         error: action.payload
       };
-    
+
     default:
       return state;
   }
 };
 
-// Crear el contexto
+// Crear contexto
 export const FacturaContext = createContext();
 
-// Provider del contexto
+// Provider
 export const FacturaProvider = ({ children }) => {
   const [state, dispatch] = useReducer(facturaReducer, initialState);
 
-  // Cargar datos del localStorage al iniciar
+  // Cargar facturas desde localStorage
   useEffect(() => {
     const facturasGuardadas = localStorage.getItem('facturas');
     if (facturasGuardadas) {
-      dispatch({ 
-        type: ACTIONS.SET_FACTURAS, 
-        payload: JSON.parse(facturasGuardadas) 
+      dispatch({
+        type: ACTIONS.SET_FACTURAS,
+        payload: JSON.parse(facturasGuardadas)
       });
     }
   }, []);
 
-  // Guardar en localStorage cada vez que cambien las facturas
+  // Guardar facturas en localStorage
   useEffect(() => {
-    if (state.facturas.length > 0) {
-      localStorage.setItem('facturas', JSON.stringify(state.facturas));
-    }
+    localStorage.setItem('facturas', JSON.stringify(state.facturas));
   }, [state.facturas]);
 
-  // Obtener tipo de cambio al iniciar
+  // Obtener tipo de cambio (desactivado si falla la API)
   useEffect(() => {
     const obtenerTipoCambio = async () => {
       try {
         const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const data = await response.json();
-        dispatch({ 
-          type: ACTIONS.SET_TIPO_CAMBIO, 
-          payload: data.rates.PEN 
-        });
+
+        if (data?.rates?.PEN) {
+          dispatch({
+            type: ACTIONS.SET_TIPO_CAMBIO,
+            payload: data.rates.PEN
+          });
+        }
       } catch (error) {
-        console.error('Error al obtener tipo de cambio:', error);
-        // Mantener el valor por defecto
+        console.error('No se pudo obtener el tipo de cambio. Se mantiene el valor por defecto.');
       }
     };
-    
+
     obtenerTipoCambio();
-    // Actualizar cada 30 minutos
+
     const interval = setInterval(obtenerTipoCambio, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -129,11 +129,14 @@ export const FacturaProvider = ({ children }) => {
   const value = {
     state,
     dispatch,
-    // Funciones helper
-    agregarFactura: (factura) => dispatch({ type: ACTIONS.ADD_FACTURA, payload: factura }),
-    actualizarFactura: (factura) => dispatch({ type: ACTIONS.UPDATE_FACTURA, payload: factura }),
-    eliminarFactura: (id) => dispatch({ type: ACTIONS.DELETE_FACTURA, payload: id }),
-    agregarCliente: (cliente) => dispatch({ type: ACTIONS.ADD_CLIENTE, payload: cliente }),
+    agregarFactura: (factura) =>
+      dispatch({ type: ACTIONS.ADD_FACTURA, payload: factura }),
+    actualizarFactura: (factura) =>
+      dispatch({ type: ACTIONS.UPDATE_FACTURA, payload: factura }),
+    eliminarFactura: (id) =>
+      dispatch({ type: ACTIONS.DELETE_FACTURA, payload: id }),
+    agregarCliente: (cliente) =>
+      dispatch({ type: ACTIONS.ADD_CLIENTE, payload: cliente })
   };
 
   return (
