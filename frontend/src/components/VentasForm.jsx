@@ -57,7 +57,20 @@ const VentasForm = ({ productos, clientesRegistrados, agregarFactura }) => {
 
         // Si no está en backend, buscar en RENIEC
         const clienteReniec = await buscarClientePorDNI(busqueda);
-        alert(" Cliente encontrado en RENIEC pero no está registrado. Por favor regístrelo primero en la sección 'Clientes'");
+        if (clienteReniec) {
+          setClienteSeleccionado({
+            id_cliente: null, // Cliente no registrado en el sistema
+            dni: clienteReniec.dni,
+            nombreCompleto: clienteReniec.nombreCompleto,
+            nombres: clienteReniec.nombres,
+            apellidoPaterno: clienteReniec.apellidoPaterno,
+            apellidoMaterno: clienteReniec.apellidoMaterno
+          });
+          alert("Cliente encontrado en RENIEC. Se usará para la venta sin necesidad de registro.");
+          return;
+        }
+
+        alert("Cliente no encontrado en RENIEC. Por favor, verifique los datos ingresados.");
         setClienteSeleccionado(null);
         return;
       }
